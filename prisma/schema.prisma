@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Movie {
+  id               Int              @id @default(autoincrement())
+  adult            Boolean?         @default(false)
+  tmdbBackdropPath String?
+  budget           Int?
+  tmdbGenresId     Int[]
+  genres           GenresOnMovies[]
+  homepage         String?
+  tmdbId           Int?             @unique
+  imdbId           String?          @unique
+  originalLanguage String?
+  originalTitle    String?
+  overview         String?
+  popularity       Float?
+  tmdbPosterPath   String?
+  releaseDate      String?
+  revenue          Int?
+  runtime          Int?
+  status           String?
+  tagline          String?
+  title            String?
+  video            Boolean?
+  voteAverage      Float?
+  voteCount        Int?
+  downloadLinks    DownloadLink[]
+  streamingLinks   StreamingLink[]
+  subtitleLinks    SubtitleLink[]
+  createdAt        DateTime?        @default(now())
+  updatedAt        DateTime?        @updatedAt
+}
+
+model Genre {
+  id          Int              @id @default(autoincrement())
+  tmdbGenreId Int              @unique
+  name        String
+  movies      GenresOnMovies[]
+}
+
+model GenresOnMovies {
+  movie      Movie     @relation(fields: [movieId], references: [id])
+  movieId    Int // relation scalar field (used in the `@relation` attribute above)
+  genre      Genre     @relation(fields: [genreId], references: [id])
+  genreId    Int // relation scalar field (used in the `@relation` attribute above)
+  assignedAt DateTime? @default(now())
+
+  @@id([movieId, genreId])
+}
+
+model DownloadLink {
+  id       Int     @id @default(autoincrement())
+  tmdbId   Int
+  imdbId   String
+  provider String?
+  size     Int?
+  link     String
+  movie    Movie?  @relation(fields: [tmdbId], references: [tmdbId])
+}
+
+model StreamingLink {
+  id       Int     @id @default(autoincrement())
+  tmdbId   Int
+  imdbId   String
+  provider String?
+  size     Int?
+  link     String
+  movie    Movie?  @relation(fields: [tmdbId], references: [tmdbId])
+}
+
+model SubtitleLink {
+  id       Int     @id @default(autoincrement())
+  tmdbId   Int
+  imdbId   String
+  provider String?
+  link     String
+  movie    Movie?  @relation(fields: [tmdbId], references: [tmdbId])
+}
