@@ -49,11 +49,10 @@ model Genre {
 }
 
 model GenresOnMovies {
-  movie      Movie     @relation(fields: [movieId], references: [id])
-  movieId    Int // relation scalar field (used in the `@relation` attribute above)
-  genre      Genre     @relation(fields: [genreId], references: [id])
-  genreId    Int // relation scalar field (used in the `@relation` attribute above)
-  assignedAt DateTime? @default(now())
+  movie   Movie @relation(fields: [movieId], references: [id])
+  movieId Int // relation scalar field (used in the `@relation` attribute above)
+  genre   Genre @relation(fields: [genreId], references: [id])
+  genreId Int // relation scalar field (used in the `@relation` attribute above)
 
   @@id([movieId, genreId])
 }

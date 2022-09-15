@@ -221,4 +221,5 @@ const deleteMovie = async () => {
 
 // getAllMovies();
 // deleteMovie();
-createMovie();
+// createMovie();
+createGenre();
