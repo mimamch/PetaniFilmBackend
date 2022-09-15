@@ -66,6 +66,90 @@ exports.addMovieByTmdbId = async (req, res) => {
     res.status(500).json(errorWithMessage(error.message));
   }
 };
+exports.getAllMovies = async (req, res) => {
+  try {
+    let { page = 1, limit = 20, order = "created", query } = req.query;
+    page = parseInt(page);
+    limit = parseInt(limit);
+    const count = await prisma.movie.count({
+      ...(query && {
+        where: {
+          title: {
+            contains: query,
+            mode: "insensitive",
+          },
+        },
+      }),
+    });
+    const total_pages = Math.ceil(count / limit);
+    const movies = await prisma.movie.findMany({
+      include: {
+        genres: {
+          include: {
+            genre: true,
+          },
+        },
+      },
+      skip: page > 1 ? (page - 1) * limit : 0,
+      take: limit,
+      orderBy: {
+        ...(order == "created"
+          ? { createdAt: "desc" }
+          : { releaseDate: "desc" }),
+      },
+      ...(query && {
+        where: {
+          OR: [
+            {
+              title: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+            {
+              imdbId: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+            {
+              ...(!isNaN(query)
+                ? {
+                    tmdbId: {
+                      equals: parseInt(query),
+                    },
+                  }
+                : null),
+            },
+          ],
+        },
+      }),
+      // take: limit,
+    });
+    if (!movies)
+      return res.status(404).json(errorWithMessage("Movie Not Found!"));
+
+    const finalMovies = movies.map((movie) => ({
+      ...movie,
+      genres: movie.genres.map((genres) => genres.genre?.name),
+    }));
+
+    res.json(
+      successWithData({
+        total_pages: total_pages,
+        page: page,
+        total_results: count,
+        results: finalMovies,
+      })
+    );
+  } catch (error) {
+    if (error.code == "P2002") {
+      return res.status(409).json(errorWithMessage("Data Already Exist!"));
+    }
+    console.error(error);
+    res.status(500).json(errorWithMessage(error.message));
+  }
+};
 exports.getMovieByTmdbId = async (req, res) => {
   try {
     if (isNaN(req.params.id))
