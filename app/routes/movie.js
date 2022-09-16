@@ -6,6 +6,7 @@ const {
   getMovieLinks,
   addMovieByTmdbId,
   getAllMovies,
+  deleteMovieByid,
 } = require("../controllers/movie");
 const router = require("express").Router();
 
@@ -16,5 +17,6 @@ router.get("/get-movie-by-imdb-id/:id", getMovieByImdbId);
 router.post("/add-movie-download-links", addMovieDownloadLinks);
 router.post("/add-movie-streaming-links", addMovieStreamingLinks);
 router.get("/get-movie-links", getMovieLinks);
+router.delete("/delete-movie-by-id/:id", deleteMovieByid);
 
 module.exports = router;

@@ -18,7 +18,6 @@ exports.addMovieByTmdbId = async (req, res) => {
     );
     if (!data)
       return res.status(404).json(errorWithMessage("Request Not Found"));
-    console.log(data);
     const genresId = data.genres.map((e) => e.id);
     const genres = data.genres.map((e) => ({
       genre: {
@@ -220,13 +219,40 @@ exports.getMovieByImdbId = async (req, res) => {
 
 exports.addMovieDownloadLinks = async (req, res) => {
   try {
-    const { downloadLinks } = req.body;
-    if (!downloadLinks || !downloadLinks.length)
+    let { downloadLinks, imdbId, tmdbId } = req.body;
+    if (!imdbId && !tmdbId)
       return res.status(400).json(errorWithMessage("Data is Empty"));
-    const movie = await prisma.downloadLink.createMany({
+    if (!downloadLinks)
+      return res.status(400).json(errorWithMessage("Data is Empty"));
+
+    downloadLinks = downloadLinks.length
+      ? downloadLinks.map((e) => {
+          return {
+            tmdbId: tmdbId,
+            imdbId: imdbId,
+            provider: e.provider || "Unknown",
+            link: e.link,
+            size: parseInt(e.size),
+          };
+        })
+      : downloadLinks;
+
+    const deleteMovieLinks = prisma.downloadLink.deleteMany({
+      where: {
+        ...(tmdbId && { tmdbId: parseInt(tmdbId) }),
+        ...(imdbId && { imdbId: imdbId }),
+      },
+    });
+    const addMovieLinks = prisma.downloadLink.createMany({
       data: downloadLinks,
     });
-    res.json(successWithData(movie));
+
+    const createLink = await prisma.$transaction([
+      deleteMovieLinks,
+      ...(downloadLinks.length ? [addMovieLinks] : []),
+    ]);
+
+    res.json(successWithData(createLink));
   } catch (error) {
     console.error(error);
     res.status(500).json(errorWithMessage(error.message));
@@ -234,13 +260,40 @@ exports.addMovieDownloadLinks = async (req, res) => {
 };
 exports.addMovieStreamingLinks = async (req, res) => {
   try {
-    const { streamingLinks } = req.body;
-    if (!streamingLinks || !streamingLinks.length)
+    let { streamingLinks, imdbId, tmdbId } = req.body;
+    if (!imdbId && !tmdbId)
       return res.status(400).json(errorWithMessage("Data is Empty"));
-    const movie = await prisma.streamingLink.createMany({
+    if (!streamingLinks)
+      return res.status(400).json(errorWithMessage("Data is Empty"));
+
+    streamingLinks = streamingLinks.length
+      ? streamingLinks.map((e) => {
+          return {
+            tmdbId: tmdbId,
+            imdbId: imdbId,
+            provider: e.provider || "Unknown",
+            link: e.link,
+            size: parseInt(e.size),
+          };
+        })
+      : streamingLinks;
+
+    const deleteMovieLinks = prisma.streamingLink.deleteMany({
+      where: {
+        ...(tmdbId && { tmdbId: parseInt(tmdbId) }),
+        ...(imdbId && { imdbId: imdbId }),
+      },
+    });
+    const addMovieLinks = prisma.streamingLink.createMany({
       data: streamingLinks,
     });
-    res.json(successWithData(movie));
+
+    const createLink = await prisma.$transaction([
+      deleteMovieLinks,
+      ...(streamingLinks.length ? [addMovieLinks] : []),
+    ]);
+
+    res.json(successWithData(createLink));
   } catch (error) {
     console.error(error);
     res.status(500).json(errorWithMessage(error.message));
@@ -270,6 +323,50 @@ exports.getMovieLinks = async (req, res) => {
       successWithData({
         downloadLinks: downloadLinks || [],
         streamingLinks: streamingLinks || [],
+      })
+    );
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(errorWithMessage(error.message));
+  }
+};
+exports.deleteMovieByid = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const genres = prisma.genresOnMovies.deleteMany({
+      where: {
+        movieId: movieId,
+      },
+    });
+    const streamingLinks = prisma.streamingLink.deleteMany({
+      where: {
+        movie: {
+          id: movieId,
+        },
+      },
+    });
+    const downloadLink = prisma.downloadLink.deleteMany({
+      where: {
+        movie: {
+          id: movieId,
+        },
+      },
+    });
+    const deleteMovie = prisma.movie.delete({
+      where: {
+        id: movieId,
+      },
+    });
+    await prisma.$transaction([
+      genres,
+      streamingLinks,
+      downloadLink,
+      deleteMovie,
+    ]);
+    res.json(
+      successWithData({
+        movieId: id,
+        message: "Movie Deleted Successfully",
       })
     );
   } catch (error) {

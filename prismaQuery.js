@@ -179,7 +179,7 @@ const getAllMovies = async () => {
   return movie;
 };
 
-const deleteMovie = async () => {
+const deleteMovie = async (movieId) => {
   try {
     // const deleteRelation = await prisma.labelplaylist.delete({
     //   where: {
@@ -202,17 +202,36 @@ const deleteMovie = async () => {
     //       posts: true,
     //     },
     //   })
-    const deleted = prisma.genresOnMovies.deleteMany({
+    const genres = prisma.genresOnMovies.deleteMany({
       where: {
-        movieId: 1,
+        movieId: movieId,
+      },
+    });
+    const streamingLinks = prisma.streamingLink.deleteMany({
+      where: {
+        movie: {
+          id: movieId,
+        },
+      },
+    });
+    const downloadLink = prisma.downloadLink.deleteMany({
+      where: {
+        movie: {
+          id: movieId,
+        },
       },
     });
     const deleteMovie = prisma.movie.delete({
       where: {
-        id: 1,
+        id: movieId,
       },
     });
-    await prisma.$transaction([deleted, deleteMovie]);
+    await prisma.$transaction([
+      genres,
+      streamingLinks,
+      downloadLink,
+      deleteMovie,
+    ]);
     // console.log(deleted);
   } catch (error) {
     console.log(error);
@@ -220,6 +239,6 @@ const deleteMovie = async () => {
 };
 
 // getAllMovies();
-// deleteMovie();
+// deleteMovie(17);
 // createMovie();
-createGenre();
+// createGenre();
