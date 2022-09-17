@@ -67,7 +67,7 @@ exports.addMovieByTmdbId = async (req, res) => {
 };
 exports.getAllMovies = async (req, res) => {
   try {
-    let { page = 1, limit = 20, order = "created", query } = req.query;
+    let { page = 1, limit = 20, order = "released", query } = req.query;
     page = parseInt(page);
     limit = parseInt(limit);
     const count = await prisma.movie.count({
