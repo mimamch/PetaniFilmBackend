@@ -58,30 +58,32 @@ model GenresOnMovies {
 }
 
 model DownloadLink {
-  id       Int     @id @default(autoincrement())
-  tmdbId   Int
-  imdbId   String
-  provider String?
-  size     Int?
-  link     String
-  movie    Movie?  @relation(fields: [tmdbId], references: [tmdbId])
+  id         Int     @id @default(autoincrement())
+  tmdbId     Int
+  imdbId     String
+  provider   String?
+  size       Int?
+  link       String
+  resolution Int?
+  movie      Movie?  @relation(fields: [tmdbId], references: [tmdbId])
 }
 
 model StreamingLink {
-  id       Int     @id @default(autoincrement())
-  tmdbId   Int
-  imdbId   String
-  provider String?
-  size     Int?
-  link     String
-  movie    Movie?  @relation(fields: [tmdbId], references: [tmdbId])
+  id         Int     @id @default(autoincrement())
+  tmdbId     Int
+  imdbId     String
+  provider   String?
+  size       Int?
+  link       String
+  resolution Int?
+  movie      Movie?  @relation(fields: [tmdbId], references: [tmdbId])
 }
 
 model SubtitleLink {
-  id       Int     @id @default(autoincrement())
+  id       Int    @id @default(autoincrement())
   tmdbId   Int
   imdbId   String
-  provider String?
+  language String
   link     String
-  movie    Movie?  @relation(fields: [tmdbId], references: [tmdbId])
+  movie    Movie? @relation(fields: [tmdbId], references: [tmdbId])
 }

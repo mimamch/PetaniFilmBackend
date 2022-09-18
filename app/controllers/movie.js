@@ -232,7 +232,8 @@ exports.addMovieDownloadLinks = async (req, res) => {
             imdbId: imdbId,
             provider: e.provider || "Unknown",
             link: e.link,
-            size: parseInt(e.size),
+            resolution: e.resolution ? parseInt(e.resolution) : null,
+            size: e.size ? parseInt(e.size) : null,
           };
         })
       : downloadLinks;
@@ -273,7 +274,8 @@ exports.addMovieStreamingLinks = async (req, res) => {
             imdbId: imdbId,
             provider: e.provider || "Unknown",
             link: e.link,
-            size: parseInt(e.size),
+            resolution: e.resolution ? parseInt(e.resolution) : null,
+            size: e.size ? parseInt(e.size) : null,
           };
         })
       : streamingLinks;
@@ -291,6 +293,46 @@ exports.addMovieStreamingLinks = async (req, res) => {
     const createLink = await prisma.$transaction([
       deleteMovieLinks,
       ...(streamingLinks.length ? [addMovieLinks] : []),
+    ]);
+
+    res.json(successWithData(createLink));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(errorWithMessage(error.message));
+  }
+};
+exports.addMovieSubtitlesLinks = async (req, res) => {
+  try {
+    let { subtitleLinks, imdbId, tmdbId } = req.body;
+    if (!imdbId && !tmdbId)
+      return res.status(400).json(errorWithMessage("Data is Empty"));
+    if (!subtitleLinks)
+      return res.status(400).json(errorWithMessage("Data is Empty"));
+
+    subtitleLinks = subtitleLinks.length
+      ? subtitleLinks.map((e) => {
+          return {
+            tmdbId: tmdbId,
+            imdbId: imdbId,
+            language: e.language,
+            link: e.link,
+          };
+        })
+      : subtitleLinks;
+
+    const deleteSubtitleLinks = prisma.subtitleLink.deleteMany({
+      where: {
+        ...(tmdbId && { tmdbId: parseInt(tmdbId) }),
+        ...(imdbId && { imdbId: imdbId }),
+      },
+    });
+    const addSubtitleLinks = prisma.subtitleLink.createMany({
+      data: subtitleLinks,
+    });
+
+    const createLink = await prisma.$transaction([
+      deleteSubtitleLinks,
+      ...(subtitleLinks.length ? [addSubtitleLinks] : []),
     ]);
 
     res.json(successWithData(createLink));
@@ -323,6 +365,27 @@ exports.getMovieLinks = async (req, res) => {
       successWithData({
         downloadLinks: downloadLinks || [],
         streamingLinks: streamingLinks || [],
+      })
+    );
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(errorWithMessage(error.message));
+  }
+};
+exports.getMovieSubtitles = async (req, res) => {
+  try {
+    const { tmdbId, imdbId } = req.query;
+    if (!tmdbId && !imdbId)
+      return res.status(400).json(errorWithMessage("Invalid Parameters"));
+    const subtitles = await prisma.subtitleLink.findMany({
+      where: {
+        ...(tmdbId && { tmdbId: parseInt(tmdbId) }),
+        ...(imdbId && { imdbId: imdbId }),
+      },
+    });
+    res.json(
+      successWithData({
+        subtitles: subtitles || [],
       })
     );
   } catch (error) {
