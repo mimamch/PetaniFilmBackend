@@ -1,11 +1,17 @@
 const { PrismaClient } = require("@prisma/client");
+const fs = require("fs");
 const { default: axios } = require("axios");
 const {
   successWithData,
   errorWithMessage,
   successWithMessage,
 } = require("../../utils/http_response_message");
-const { TMDB_BASE_URL, TMDB_API_KEY } = require("../../utils/shared_variables");
+const {
+  TMDB_BASE_URL,
+  TMDB_API_KEY,
+  PUBLIC_PATH,
+  API_BASE_URL,
+} = require("../../utils/shared_variables");
 const prisma = new PrismaClient();
 
 exports.addMovieByTmdbId = async (req, res) => {
@@ -309,16 +315,48 @@ exports.addMovieSubtitlesLinks = async (req, res) => {
     if (!subtitleLinks)
       return res.status(400).json(errorWithMessage("Data is Empty"));
 
+    const newUploadedFiles = [];
     subtitleLinks = subtitleLinks.length
       ? subtitleLinks.map((e) => {
-          return {
-            tmdbId: tmdbId,
-            imdbId: imdbId,
-            language: e.language,
-            link: e.link,
-          };
+          if ((!e.file && !e.link) || !e.language)
+            throw new Error("Link, File, or Language is Empty");
+          if (!!e.file) {
+            const base64 = e.file.base64.split(";base64,").pop();
+            const fileName = `${tmdbId ?? ""}-${new Date().getTime()}-${
+              e.language
+            }.srt`;
+            newUploadedFiles.push(fileName);
+            const file = fs.writeFileSync(
+              `${PUBLIC_PATH}/subtitles/${fileName}`,
+              base64,
+              { encoding: "base64" }
+            );
+            return {
+              tmdbId: tmdbId,
+              imdbId: imdbId,
+              language: e.language,
+              link: `${API_BASE_URL}/subtitles/${fileName}`,
+            };
+          } else {
+            return {
+              tmdbId: tmdbId,
+              imdbId: imdbId,
+              language: e.language,
+              link: e.link,
+            };
+          }
         })
       : subtitleLinks;
+
+    const getFile = prisma.subtitleLink.findMany({
+      where: {
+        ...(tmdbId && { tmdbId: parseInt(tmdbId) }),
+        ...(imdbId && { imdbId: imdbId }),
+      },
+      select: {
+        link: true,
+      },
+    });
 
     const deleteSubtitleLinks = prisma.subtitleLink.deleteMany({
       where: {
@@ -330,12 +368,20 @@ exports.addMovieSubtitlesLinks = async (req, res) => {
       data: subtitleLinks,
     });
 
-    const createLink = await prisma.$transaction([
+    const [toDelete, deleted, added] = await prisma.$transaction([
+      getFile,
       deleteSubtitleLinks,
       ...(subtitleLinks.length ? [addSubtitleLinks] : []),
     ]);
 
-    res.json(successWithData(createLink));
+    newUploadedFiles.length &&
+      toDelete.map((e) => {
+        const path = e.link.split(`${API_BASE_URL}`).pop();
+        const isExist = fs.existsSync(PUBLIC_PATH + path);
+        if (isExist) fs.unlinkSync(PUBLIC_PATH + path);
+      });
+
+    res.json(successWithMessage("Success Updated"));
   } catch (error) {
     console.error(error);
     res.status(500).json(errorWithMessage(error.message));
