@@ -439,37 +439,42 @@ exports.getMovieSubtitles = async (req, res) => {
     res.status(500).json(errorWithMessage(error.message));
   }
 };
-exports.deleteMovieByid = async (req, res) => {
+exports.deleteMovieByTmdbId = async (req, res) => {
   try {
-    const { id } = req.params;
+    let { id } = req.params;
+    id = parseInt(id);
     const genres = prisma.genresOnMovies.deleteMany({
       where: {
-        movieId: movieId,
+        movie: {
+          tmdbId: id,
+        },
       },
     });
     const streamingLinks = prisma.streamingLink.deleteMany({
       where: {
-        movie: {
-          id: movieId,
-        },
+        tmdbId: id,
       },
     });
     const downloadLink = prisma.downloadLink.deleteMany({
       where: {
-        movie: {
-          id: movieId,
-        },
+        tmdbId: id,
+      },
+    });
+    const substitles = prisma.subtitleLink.deleteMany({
+      where: {
+        tmdbId: id,
       },
     });
     const deleteMovie = prisma.movie.delete({
       where: {
-        id: movieId,
+        tmdbId: id,
       },
     });
     await prisma.$transaction([
       genres,
       streamingLinks,
       downloadLink,
+      substitles,
       deleteMovie,
     ]);
     res.json(
