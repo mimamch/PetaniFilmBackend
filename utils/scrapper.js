@@ -9,7 +9,7 @@ const {
   getGenres,
   getLastUploaded,
 } = require("./scrapper_function");
-const getMovieByLink = async (link) => {
+exports.getMovieByLink = async (link) => {
   try {
     if (link.includes("/tv/")) return;
     const page = await axios.get(link);
@@ -35,7 +35,7 @@ const getMovieByLink = async (link) => {
 
 // getMovieByLink("http://185.99.135.232/keluarga-cemara-2019/");
 
-const getTvByLink = async (link) => {
+exports.getTvByLink = async (link) => {
   try {
     const page = await axios.get(link);
     const { window, ...dom } = new JSDOM(page.data);
@@ -64,7 +64,7 @@ const getTvByLink = async (link) => {
 
 // getTvByLink("http://185.99.135.232/tv/the-queens-umbrella-2022/");
 
-const getTvEpisode = async (link) => {
+exports.getTvEpisode = async (link) => {
   try {
     const page = await axios.get(link);
     const { window, ...dom } = new JSDOM(page.data);
@@ -87,18 +87,26 @@ const getTvEpisode = async (link) => {
 
 // getTvEpisode("http://185.99.135.232/eps/the-queens-umbrella-episode-1/");
 
-const getHomePage = async () => {
+exports.getHomePage = async (pageCount = 1) => {
   try {
-    const page = await axios.get("http://185.99.135.232/");
+    const page = await axios.get(`http://185.99.135.232/page/${pageCount}`);
     const { window, ...dom } = new JSDOM(page.data);
     const lastUploaded = getLastUploaded(window.document);
-    console.log(lastUploaded);
+    let totalPages = Array.from(
+      window.document.querySelectorAll(".page-numbers")
+    );
+    totalPages.pop();
+    totalPages = parseInt(totalPages.pop().textContent);
     return {
-      last_uploaded: lastUploaded,
+      last_uploaded: {
+        total_pages: totalPages,
+        current_page: pageCount,
+        data: lastUploaded,
+      },
     };
   } catch (error) {
     console.log(error);
     throw error;
   }
 };
-getHomePage();
+// getHomePage();

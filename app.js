@@ -14,7 +14,6 @@ const movieRouter = require("./app/routes/movie");
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "ejs");
 
 app.use(cors({ origin: "*" }));
 app.use(logger("dev"));
@@ -24,6 +23,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/movie", movieRouter);
+app.use("/v2", require("./v2/routes"));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
