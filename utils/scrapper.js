@@ -12,8 +12,9 @@ const {
 } = require("./scrapper_function");
 exports.getMovieByLink = async (link) => {
   try {
-    if (link.includes("/tv/")) return;
+    if (link.includes("/tv/")) throw new Error("Bukan Film");
     const page = await axios.get(link);
+
     const { window, ...dom } = new JSDOM(page.data);
     const totalStreamServer = getTotalStreamingServer(window.document);
     const streamingLink = getStreamingLink(window.document);
@@ -26,7 +27,6 @@ exports.getMovieByLink = async (link) => {
       download_links: downloadLinks,
       detail: detail,
     };
-    console.log(result);
     return result;
   } catch (error) {
     console.log(error);
