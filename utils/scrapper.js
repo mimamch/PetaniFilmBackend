@@ -8,6 +8,7 @@ const {
   getHomePageItems,
   getGenres,
   getLastUploaded,
+  getFeaturedPost,
 } = require("./scrapper_function");
 exports.getMovieByLink = async (link) => {
   try {
@@ -97,16 +98,19 @@ exports.getHomePage = async (pageCount = 1) => {
     );
     totalPages.pop();
     totalPages = parseInt(totalPages.pop().textContent);
+
+    const featuredPost = getFeaturedPost(window.document);
     return {
       last_uploaded: {
-        total_pages: totalPages,
-        current_page: pageCount,
+        total_pages: parseInt(totalPages),
+        current_page: parseInt(pageCount),
         data: lastUploaded,
       },
+      featured_post: featuredPost,
     };
   } catch (error) {
     console.log(error);
     throw error;
   }
 };
-// getHomePage();
+this.getHomePage();

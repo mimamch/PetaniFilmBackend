@@ -12,9 +12,6 @@ const http = require("http");
 var app = express();
 const movieRouter = require("./app/routes/movie");
 
-// view engine setup
-app.set("views", path.join(__dirname, "views"));
-
 app.use(cors({ origin: "*" }));
 app.use(logger("dev"));
 app.use(express.json({ limit: "50mb" }));
@@ -38,7 +35,7 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render("error");
+  res.send(err.message);
 });
 
 var port = normalizePort(process.env.PORT || "3000");

@@ -122,3 +122,13 @@ exports.getLastUploaded = (document) => {
     }
   );
 };
+
+exports.getFeaturedPost = (document) =>
+  Array.from(document.querySelectorAll(".gmr-slider-content")).map((e) => {
+    return {
+      url: e.querySelector("[itemprop=url]")?.href,
+      poster_url: e.querySelector("img")?.getAttribute("data-src"),
+      title: e.querySelector(".gmr-slide-titlelink")?.textContent,
+      quality: e.querySelector(".gmr-quality-item")?.textContent,
+    };
+  });
