@@ -33,13 +33,12 @@ exports.getGenres = (document) =>
 exports.getCountry = (document) =>
   document.querySelector('.gmr-moviedata > [itemprop="contentLocation"]')
     ?.textContent;
-exports.getRating = (document) =>
-  parseFloat(
-    Math.round(
-      document.querySelector('.gmr-meta-rating > [itemprop="ratingValue"]')
-        ?.textContent ?? 0 * 10
-    ) / 10
-  );
+exports.getRating = (document) => {
+  const rating = document.querySelector(
+    '.gmr-meta-rating > [itemprop="ratingValue"]'
+  ).textContent;
+  return parseFloat(rating);
+};
 exports.getPosterUrl = (document) =>
   document.querySelector('meta[property="og:image"]')?.content ?? null;
 exports.getActors = (document) =>
