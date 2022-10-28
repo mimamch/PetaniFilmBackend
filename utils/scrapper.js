@@ -115,4 +115,22 @@ exports.getHomePage = async (pageCount = 1) => {
     throw error;
   }
 };
-this.getHomePage();
+// this.getHomePage();
+
+exports.searchQuery = async (query) => {
+  try {
+    const page = await axios.get(
+      `http://185.99.135.232/?s=${query}&post_type%5B%5D=post&post_type%5B%5D=tv`
+    );
+    const { window, ...dom } = new JSDOM(page.data);
+    // const post = Array.from(window.document.querySelectorAll("article")).map(
+    //   (e) => {
+    //     return getLastUploaded(window.document);
+    //   }
+    // );
+    const post = getLastUploaded(window.document);
+    return post;
+  } catch (error) {
+    throw error;
+  }
+};
