@@ -34,9 +34,9 @@ exports.getCountry = (document) =>
   document.querySelector('.gmr-moviedata > [itemprop="contentLocation"]')
     ?.textContent;
 exports.getRating = (document) => {
-  const rating = document.querySelector(
-    '.gmr-meta-rating > [itemprop="ratingValue"]'
-  ).textContent;
+  const rating =
+    document.querySelector('.gmr-meta-rating > [itemprop="ratingValue"]')
+      ?.textContent ?? "0";
   return parseFloat(rating);
 };
 exports.getPosterUrl = (document) =>

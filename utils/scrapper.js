@@ -42,20 +42,22 @@ exports.getTvByLink = async (link) => {
     const { window, ...dom } = new JSDOM(page.data);
     const episodes = Array.from(
       window.document.querySelectorAll(".button.button-shadow")
-    ).map((e, i) => e.href);
+    ).map((e) => ({
+      label: e.textContent,
+      link: e.href,
+    }));
     episodes.shift();
     const totalEpisodes = episodes.length;
 
     const streamingLink = getStreamingLink(window.document);
     const detail = getDetail(window.document);
     const result = {
-      type: "movie",
+      type: "tv",
       total_episodes: totalEpisodes,
       streaming_link: streamingLink,
       episodes: episodes,
       detail: detail,
     };
-    console.log(result);
     return result;
   } catch (error) {
     console.log(error);
@@ -79,7 +81,7 @@ exports.getTvEpisode = async (link) => {
       streaming_link: streamingLink,
       download_links: downloadLinks,
     };
-    console.log(result);
+    return result;
   } catch (error) {
     console.log(error);
     throw error;
