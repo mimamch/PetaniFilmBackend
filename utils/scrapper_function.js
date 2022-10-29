@@ -5,8 +5,13 @@ exports.getTotalStreamingServer = (document) => {
   return streamServerDom.children.length;
 };
 
-exports.getStreamingLink = (document) =>
-  document.querySelector(".gmr-embed-responsive > iframe")?.src;
+exports.getStreamingLink = (document) => {
+  let data = document.querySelector(".gmr-embed-responsive > iframe")?.src;
+  if (data[0] == "/" && data[1] == "/") {
+    data = "https:" + data;
+  }
+  return data;
+};
 
 exports.getDownloadLinks = (document) => {
   const downloadLinksDom = Array.from(
