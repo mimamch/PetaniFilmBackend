@@ -8,14 +8,14 @@ exports.getApkConfiguration = async (req, res) => {
     const assets = {
       caching: {
         // expired_minutes: 60 * 24,
-        expired_minutes: 5, // FOR TESTING
+        expired_minutes: 15, // FOR TESTING
       },
       one_signal: {
         app_id: "538bd297-5880-4720-b2f8-0b86f283d2cc",
       },
       ads: {
-        show_ads: false,
-        interstitial_interval_minutes: 5,
+        show_ads: true,
+        interstitial_interval_minutes: 10,
         applovin_sdk_key:
           "eF97zKQbpUaTMGxDis07Jl75fR2uUtm5PnCTaJ_eTFzz0vA5EQlWw996BF6lu5AOv7I6TWfKw7kz4SZkWCboHz",
         applovin_banner_ad_unit_id: {
