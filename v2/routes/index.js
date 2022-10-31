@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const { getApkConfiguration } = require("../controller/apk_assets");
 const {
   getMovieDetail,
   getTvDetail,
@@ -8,6 +9,7 @@ const { getHomePageData, searchQuery } = require("../controller/home_page");
 const router = Router();
 
 router.get("/home_page", getHomePageData);
+router.get("/app-configuration", getApkConfiguration);
 router.get("/search", searchQuery);
 router.get("/get-movie-by-link/:link", getMovieDetail);
 router.post("/get-movie-by-link", getMovieDetail);

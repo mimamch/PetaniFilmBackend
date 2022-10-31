@@ -109,6 +109,14 @@ exports.getHomePage = async (pageCount = 1) => {
         data: lastUploaded,
       },
       featured_post: featuredPost,
+      announcements: [
+        // {
+        //   label: "TELEGRAM RESMI PETANI FILM HANYA https://t.me/petanifilm",
+        //   action: "launch_url",
+        //   link: "https://t.me/petanifilm",
+        //   color: "#74788d",
+        // },
+      ],
     };
   } catch (error) {
     console.log(error);
