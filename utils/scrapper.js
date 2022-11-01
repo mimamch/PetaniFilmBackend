@@ -9,20 +9,32 @@ const {
   getGenres,
   getLastUploaded,
   getFeaturedPost,
+  getStreamingLink2,
 } = require("./scrapper_function");
-exports.getMovieByLink = async (link) => {
+exports.getMovieByLink = async (
+  link,
+  { player = 1, web = parseInt(process.env.WEB ?? 1) }
+) => {
   try {
     if (link.includes("/tv/")) throw new Error("Bukan Film");
     const page = await axios.get(link);
-
     const { window, ...dom } = new JSDOM(page.data);
     const totalStreamServer = getTotalStreamingServer(window.document);
-    const streamingLink = getStreamingLink(window.document);
+    let streamingLink = null;
+    if (web == 1) {
+      streamingLink = getStreamingLink(window.document);
+    } else {
+      streamingLink = await getStreamingLink2(window.document, player);
+    }
+    if (streamingLink?.[0] == "/" && streamingLink?.[1] == "/") {
+      streamingLink = "https:" + streamingLink;
+    }
     const downloadLinks = getDownloadLinks(window.document);
     const detail = getDetail(window.document);
     const result = {
       type: "movie",
       total_streaming_server: totalStreamServer,
+      current_player: parseInt(player),
       streaming_link: streamingLink,
       download_links: downloadLinks,
       detail: detail,
@@ -34,7 +46,7 @@ exports.getMovieByLink = async (link) => {
   }
 };
 
-// getMovieByLink("http://185.99.135.232/keluarga-cemara-2019/");
+// getMovieByLink("${process.env.WEB_BASE_URL}/keluarga-cemara-2019/");
 
 exports.getTvByLink = async (link) => {
   try {
@@ -65,20 +77,32 @@ exports.getTvByLink = async (link) => {
   }
 };
 
-// getTvByLink("http://185.99.135.232/tv/the-queens-umbrella-2022/");
+// getTvByLink("${process.env.WEB_BASE_URL}/tv/the-queens-umbrella-2022/");
 
-exports.getTvEpisode = async (link) => {
+exports.getTvEpisode = async (
+  link,
+  { player = 1, web = parseInt(process.env.WEB ?? 1) }
+) => {
   try {
     const page = await axios.get(link);
     const { window, ...dom } = new JSDOM(page.data);
 
     const totalStreamServer = getTotalStreamingServer(window.document);
-    const streamingLink = getStreamingLink(window.document);
+    let streamingLink = null;
+    if (web == 1) {
+      streamingLink = getStreamingLink(window.document);
+    } else {
+      streamingLink = await getStreamingLink2(window.document, player);
+    }
+    if (streamingLink?.[0] == "/" && streamingLink?.[1] == "/") {
+      streamingLink = "https:" + streamingLink;
+    }
     const downloadLinks = getDownloadLinks(window.document);
     const result = {
       type: "tv",
       total_streaming_server: totalStreamServer,
       streaming_link: streamingLink,
+      current_player: player,
       download_links: downloadLinks,
     };
     return result;
@@ -88,11 +112,13 @@ exports.getTvEpisode = async (link) => {
   }
 };
 
-// getTvEpisode("http://185.99.135.232/eps/the-queens-umbrella-episode-1/");
+// getTvEpisode("${process.env.WEB_BASE_URL}/eps/the-queens-umbrella-episode-1/");
 
 exports.getHomePage = async (pageCount = 1) => {
   try {
-    const page = await axios.get(`http://185.99.135.232/page/${pageCount}`);
+    const page = await axios.get(
+      `${process.env.WEB_BASE_URL}/page/${pageCount}`
+    );
     const { window, ...dom } = new JSDOM(page.data);
     const lastUploaded = getLastUploaded(window.document);
     let totalPages = Array.from(
@@ -128,7 +154,7 @@ exports.getHomePage = async (pageCount = 1) => {
 exports.searchQuery = async (query) => {
   try {
     const page = await axios.get(
-      `http://185.99.135.232/?s=${query}&post_type%5B%5D=post&post_type%5B%5D=tv`
+      `${process.env.WEB_BASE_URL}/?s=${query}&post_type%5B%5D=post&post_type%5B%5D=tv`
     );
     const { window, ...dom } = new JSDOM(page.data);
     // const post = Array.from(window.document.querySelectorAll("article")).map(
@@ -142,3 +168,11 @@ exports.searchQuery = async (query) => {
     throw error;
   }
 };
+
+// (async () => {
+//   console.log(
+//     await this.getMovieByLink("http://185.99.135.215/v-h-s-99-2022/", {
+//       player: 5,
+//     })
+//   );
+// })();

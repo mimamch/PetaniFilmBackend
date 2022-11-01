@@ -1,3 +1,6 @@
+const { default: axios } = require("axios");
+const { JSDOM } = require("jsdom");
+
 exports.getTotalStreamingServer = (document) => {
   const streamServerDom = document.querySelector(
     ".muvipro-player-tabs.nav.nav-tabs.clearfix"
@@ -7,9 +10,27 @@ exports.getTotalStreamingServer = (document) => {
 
 exports.getStreamingLink = (document) => {
   let data = document.querySelector(".gmr-embed-responsive > iframe")?.src;
-  if (data[0] == "/" && data[1] == "/") {
-    data = "https:" + data;
-  }
+  return data;
+};
+exports.getStreamingLink2 = async (document, player = 1) => {
+  const movieid = document
+    .querySelector("#muvipro_player_content_id")
+    .getAttribute("data-id");
+  const data = await axios
+    .post(
+      `${process.env.WEB_BASE_URL}/wp-admin/admin-ajax.php`,
+      new URLSearchParams({
+        action: "muvipro_player_content",
+        tab: `p${player}`,
+        post_id: movieid,
+      })
+    )
+    .then((e) => {
+      return new JSDOM(e.data).window.document.querySelector("iframe").src;
+    })
+    .catch((err) => {
+      return null;
+    });
   return data;
 };
 
