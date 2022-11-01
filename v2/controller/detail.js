@@ -10,9 +10,10 @@ const {
 
 exports.getMovieDetail = async (req, res) => {
   try {
-    const { player = 1 } = req.query;
-    if (player) {
-      req.body.link += `?player=${player}`;
+    let { player = 1 } = req.query;
+    const linkPlayer = new URL(req.body.link).searchParams.get("player");
+    if (linkPlayer) {
+      player = linkPlayer;
     }
     if (req.body.link.includes("/tv/")) return this.getTvDetail(req, res);
     const movie = await getMovieByLink(req.body.link ?? req.params.link, {
@@ -41,9 +42,6 @@ exports.getTvByEpisode = async (req, res) => {
     const linkPlayer = new URL(req.body.link).searchParams.get("player");
     if (linkPlayer) {
       player = linkPlayer;
-    }
-    if (player) {
-      req.body.link += `?player=${player}`;
     }
     const data = await getTvEpisode(req.body.link, {
       player: player,

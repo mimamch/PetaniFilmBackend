@@ -102,7 +102,7 @@ exports.getTvEpisode = async (
       type: "tv",
       total_streaming_server: totalStreamServer,
       streaming_link: streamingLink,
-      current_player: player,
+      current_player: parseInt(player),
       download_links: downloadLinks,
     };
     return result;
@@ -135,13 +135,15 @@ exports.getHomePage = async (pageCount = 1) => {
         data: lastUploaded,
       },
       featured_post: featuredPost,
+      title1: "Rekomendasi",
+      title2: "Baru Diperbarui",
       announcements: [
-        // {
-        //   label: "TELEGRAM RESMI PETANI FILM HANYA https://t.me/petanifilm",
-        //   action: "launch_url",
-        //   link: "https://t.me/petanifilm",
-        //   color: "#74788d",
-        // },
+        {
+          label: "TELEGRAM RESMI PETANI FILM HANYA https://t.me/petanifilm",
+          action: "launch_url",
+          link: "https://t.me/petanifilm",
+          color: "#74788d",
+        },
       ],
     };
   } catch (error) {
