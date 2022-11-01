@@ -155,5 +155,8 @@ exports.getFeaturedPost = (document) =>
       poster_url: e.querySelector("img")?.getAttribute("data-src"),
       title: e.querySelector(".gmr-slide-titlelink")?.textContent,
       quality: e.querySelector(".gmr-quality-item")?.textContent,
+      type: e.querySelector("[itemprop=url]")?.href.includes("/tv/")
+        ? "tv"
+        : "movie",
     };
   });
