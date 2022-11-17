@@ -10,7 +10,7 @@ const { onError } = require("./bin/www");
 const { onListening } = require("./bin/www");
 const http = require("http");
 var app = express();
-const movieRouter = require("./app/routes/movie");
+// const movieRouter = require("./app/routes/movie");
 
 app.use(cors({ origin: "*" }));
 app.use(logger("dev"));
@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/movie", movieRouter);
+// app.use("/movie", movieRouter);
 app.use("/v2", require("./v2/routes"));
 
 // catch 404 and forward to error handler

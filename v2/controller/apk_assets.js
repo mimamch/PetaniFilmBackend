@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken");
 const {
   errorWithDefaultMessage,
   successWithData,
@@ -6,6 +7,12 @@ const {
 exports.getApkConfiguration = async (req, res) => {
   try {
     const assets = {
+      credentials: {
+        token: jwt.sign(
+          { token: new Date().getTime().toString() },
+          "akuganteng"
+        ), // FOR TESTING
+      },
       caching: {
         // expired_minutes: 60 * 24,
         expired_minutes: 15, // FOR TESTING
