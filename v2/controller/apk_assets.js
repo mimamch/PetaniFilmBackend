@@ -21,8 +21,8 @@ exports.getApkConfiguration = async (req, res) => {
         app_id: "538bd297-5880-4720-b2f8-0b86f283d2cc",
       },
       ads: {
-        show_ads: false,
-        interstitial_interval_minutes: 10,
+        show_ads: true,
+        interstitial_interval_minutes: 15,
         applovin_sdk_key:
           "eF97zKQbpUaTMGxDis07Jl75fR2uUtm5PnCTaJ_eTFzz0vA5EQlWw996BF6lu5AOv7I6TWfKw7kz4SZkWCboHz",
         applovin_banner_ad_unit_id: {
