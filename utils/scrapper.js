@@ -127,6 +127,14 @@ exports.getHomePage = async (pageCount = 1) => {
     totalPages.pop();
     totalPages = parseInt(totalPages.pop().textContent);
 
+    const genres = Array.from(
+      window.document.querySelector('select[name="genre"]').children
+    ).map((e) => ({
+      label: e.textContent,
+      slug: e.value,
+    }));
+    genres.shift();
+
     const featuredPost = getFeaturedPost(window.document);
     return {
       last_uploaded: {
@@ -134,6 +142,7 @@ exports.getHomePage = async (pageCount = 1) => {
         current_page: parseInt(pageCount),
         data: lastUploaded,
       },
+      genres: genres || [],
       featured_post: featuredPost,
       title1: "Rekomendasi",
       title2: "Baru Diperbarui",
@@ -151,7 +160,32 @@ exports.getHomePage = async (pageCount = 1) => {
     throw error;
   }
 };
-// this.getHomePage();
+
+exports.getByGenre = async (pageCount = 1, genre) => {
+  try {
+    const page = await axios.get(
+      `${process.env.WEB_BASE_URL}/page/${pageCount}?s&search=advanced&genre=${genre}`
+    );
+    const { window, ...dom } = new JSDOM(page.data);
+    const lastUploaded = getLastUploaded(window.document);
+    let totalPages = Array.from(
+      window.document.querySelectorAll(".page-numbers")
+    );
+
+    totalPages.pop();
+    totalPages = totalPages.length ? parseInt(totalPages.pop().textContent) : 0;
+    return {
+      last_uploaded: {
+        total_pages: parseInt(totalPages),
+        current_page: parseInt(pageCount),
+        data: lastUploaded,
+      },
+    };
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
 
 exports.searchQuery = async (query) => {
   try {

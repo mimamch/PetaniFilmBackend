@@ -56,6 +56,13 @@ exports.getGenres = (document) =>
   Array.from(
     document.querySelectorAll(`.gmr-moviedata > [rel="category tag"]`)
   ).map((e) => e?.textContent);
+exports.getGenres2 = (document) =>
+  Array.from(
+    document.querySelectorAll(`.gmr-moviedata > [rel="category tag"]`)
+  ).map((e) => {
+    const slugs = e?.href?.split("/");
+    return { label: e?.textContent, slug: slugs[slugs.length - 2] };
+  });
 exports.getCountry = (document) =>
   document.querySelector('.gmr-moviedata > [itemprop="contentLocation"]')
     ?.textContent;
@@ -101,6 +108,7 @@ exports.getDetail = (document) => {
   const description = this.getDescription(document);
   const releaseDate = this.getReleaseDate(document);
   const genres = this.getGenres(document);
+  const genres2 = this.getGenres2(document);
   const country = this.getCountry(document);
   const rating = this.getRating(document);
   const posterUrl = this.getPosterUrl(document);
@@ -114,6 +122,7 @@ exports.getDetail = (document) => {
     release_date: releaseDate,
     year: parseInt(releaseDate?.split(" ")?.pop() ?? 0),
     genres: genres,
+    genres2: genres2,
     country: country,
     rating: rating,
     poster_url: posterUrl,

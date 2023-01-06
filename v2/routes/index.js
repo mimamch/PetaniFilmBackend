@@ -5,10 +5,15 @@ const {
   getTvDetail,
   getTvByEpisode,
 } = require("../controller/detail");
-const { getHomePageData, searchQuery } = require("../controller/home_page");
+const {
+  getHomePageData,
+  searchQuery,
+  getMovieByGenre,
+} = require("../controller/home_page");
 const router = Router();
 
 router.get("/home_page", getHomePageData);
+router.get("/get-movie-by-genre", getMovieByGenre);
 router.get("/app-configuration", getApkConfiguration);
 router.get("/search", searchQuery);
 router.get("/get-movie-by-link/:link", getMovieDetail);
