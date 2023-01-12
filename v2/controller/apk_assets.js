@@ -26,11 +26,17 @@ exports.getApkConfiguration = async (req, res) => {
         applovin_sdk_key:
           "eF97zKQbpUaTMGxDis07Jl75fR2uUtm5PnCTaJ_eTFzz0vA5EQlWw996BF6lu5AOv7I6TWfKw7kz4SZkWCboHz",
         applovin_banner_ad_unit_id: {
-          android: "9c9e2a4d7155e261",
+          // android: "9c9e2a4d7155e261",
+          android: "",
+          ios: "",
+        },
+        applovin_merc_ad_unit_id: {
+          android: "7e8882a829a2ab84",
           ios: "",
         },
         applovin_interstitial_ad_unit_id: {
-          android: "aa1c03016bdc905f",
+          // android: "aa1c03016bdc905f",
+          android: "",
           ios: "",
         },
       },
